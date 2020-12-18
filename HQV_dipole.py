@@ -28,13 +28,15 @@ Kx, Ky = cp.fft.fftshift(Kx), cp.fft.fftshift(Ky)
 
 # Potential and interaction parameters
 V = 0.  # Doubly periodic box
-g1 = 1
-g2 = 1
-g12 = 0.5
+g1 = 4
+g2 = 4
+g12 = 3
+mu_1 = 1
+mu_2 = 1
 
 # Time steps, number and wavefunction save variables
-Nt = 100000
-Nframe = 1000   # Save data every Nframe number of timesteps
+Nt = 150000
+Nframe = 300   # Save data every Nframe number of timesteps
 dt = 1e-2  # Imaginary time timestep
 t = 0.
 save_index = 0   # Array index
@@ -47,7 +49,7 @@ n0 = cp.ones(shape=(Nx, Ny))  # Background density
 
 # Generate phase:
 N_vort = 2  # One dipole
-positions = [-32, -32, 32, -32]
+positions = [-2.5, -32, 2.5, -32]
 theta = get_phase(N_vort, positions, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
 
 # Generate initial wavefunctions:
@@ -76,7 +78,7 @@ for i in range(2000):
     psi_2 = cp.fft.ifft2(psi_2_k)
 
     # Potential step:
-    psi_1, psi_2 = sm.potential_evolution(psi_1, psi_2, -1j * dt, g1, g2, g12)
+    psi_1, psi_2 = sm.potential_evolution(psi_1, psi_2, -1j * dt, g1, g2, g12, mu_1, mu_2)
 
     psi_1_k = cp.fft.fft2(psi_1)
     psi_2_k = cp.fft.fft2(psi_2)
@@ -135,7 +137,7 @@ for i in range(Nt):
     psi_2 = cp.fft.ifft2(psi_2_k)
 
     # Potential step:
-    psi_1, psi_2 = sm.potential_evolution(psi_1, psi_2, dt, g1, g2, g12)
+    psi_1, psi_2 = sm.potential_evolution(psi_1, psi_2, dt, g1, g2, g12, mu_1, mu_2)
 
     psi_1_k = cp.fft.fft2(psi_1)
     psi_2_k = cp.fft.fft2(psi_2)
