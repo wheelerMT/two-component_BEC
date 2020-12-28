@@ -29,12 +29,13 @@ Kx, Ky = cp.fft.fftshift(Kx), cp.fft.fftshift(Ky)
 V = 0.  # Doubly periodic box
 g1 = 3e-5
 g2 = 3e-5
-g12 = g1 / 2
+gamma = 0.75
+g12 = g1 * gamma
 
 # Time steps, number and wavefunction save variables
 Nt = 10000000
 Nframe = 10000  # Saves data every Nframe time steps
-dt = 1e-2  # Imaginary time timestep
+dt = 1e-2  # Timestep
 t = 0.
 save_index = 0   # Array index
 
