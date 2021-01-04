@@ -71,33 +71,3 @@ def refine_positions(position, wfn, x_grid, y_grid):
 
     # Return x and y positions:
     return (y_v - len(y_grid) // 2) * (y_grid[1] - y_grid[0]), (x_v - len(x_grid) // 2) * (x_grid[1] - x_grid[0])
-
-
-def remove_invalid_positions(vortex_pos, antivortex_pos, r):
-    """ Function that removes oppositely signed vortices that are too close together, typically these are sometimes
-    detected by the algorithm when the phase field is broken near an existing vortex."""
-
-    removable_vort = []  # List of removable vortices
-    removable_antivort = []  # List of removable anti-vortices
-
-    for vtx in vortex_pos:
-        position_found = False
-
-        for anti_vtx in antivortex_pos:
-            if (vtx[0] - anti_vtx[0]) ** 2 + (vtx[1] - anti_vtx[1]) ** 2 < r:
-                if anti_vtx not in removable_antivort:
-                    removable_antivort.append(anti_vtx)
-                    position_found = True
-
-        if position_found and vtx not in removable_vort:
-            removable_vort.append(vtx)
-
-    for vtx in removable_vort:
-        if vtx in vortex_pos:
-            del vortex_pos[vortex_pos.index(vtx)]
-
-    for anti_vtx in removable_antivort:
-        if anti_vtx in antivortex_pos:
-            del antivortex_pos[antivortex_pos.index(anti_vtx)]
-
-    return vortex_pos, antivortex_pos
