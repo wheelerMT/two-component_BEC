@@ -91,3 +91,5 @@ class VortexMap:
             vortex.update_type('HQV')
             vortex.update_uid()
             self.vortices_hqv.append(vortex)
+
+        self.vortices_unid = []  # Empties unid list
