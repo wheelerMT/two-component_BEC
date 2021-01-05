@@ -3,6 +3,7 @@ import cupy as cp
 import h5py
 from include.phaseImprinting import get_phase
 import include.symplecticMethod as sm
+import matplotlib.pyplot as plt
 
 
 """Generates an initial state with a random configuration of HQVs in each component and then evolves in time."""
@@ -54,12 +55,12 @@ n0 = 1.6e9 / (1024 ** 2)  # Background density
 N_vort = 1000
 vort_pos_1 = [pos for pos in np.random.uniform(-len_x // 2, len_x // 2, size=N_vort * 2)]
 vort_pos_2 = [pos for pos in np.random.uniform(-len_x // 2, len_x // 2, size=N_vort * 2)]
-theta_1 = get_phase(N_vort, vort_pos_1, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
-theta_2 = get_phase(N_vort, vort_pos_2, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
+theta_1 = get_phase(N_vort, vort_pos_1, Nx, Ny, X, Y, len_x, len_y)
+theta_2 = get_phase(N_vort, vort_pos_2, Nx, Ny, X, Y, len_x, len_y)
 
 # Generate initial wavefunctions:
-psi_1 = cp.sqrt(n0 / 2) * cp.exp(1j * cp.asarray(theta_1))
-psi_2 = cp.sqrt(n0 / 2) * cp.exp(1j * cp.asarray(theta_2))
+psi_1 = cp.sqrt(n0 / 2) * cp.exp(1j * theta_1)
+psi_2 = cp.sqrt(n0 / 2) * cp.exp(1j * theta_2)
 psi_1_k = cp.fft.fft2(psi_1)
 psi_2_k = cp.fft.fft2(psi_2)
 
@@ -68,8 +69,8 @@ atom_num_1 = dx * dy * cp.sum(cp.abs(psi_1) ** 2)
 atom_num_2 = dx * dy * cp.sum(cp.abs(psi_2) ** 2)
 
 # Phase of initial state to allow fixing of phase during imaginary time evolution
-theta_fix_1 = np.angle(psi_1)
-theta_fix_2 = np.angle(psi_2)
+theta_fix_1 = cp.angle(psi_1)
+theta_fix_2 = cp.angle(psi_2)
 
 # ------------------------------------------------------------------------------------------------------------------
 # Imaginary time evolution
