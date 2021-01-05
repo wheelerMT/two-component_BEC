@@ -66,11 +66,11 @@ class VortexMap:
         # * Finds SQVs by finding overlapping vortices in the components
         # * Threshold determines the maximum distance between to cores to be classed as a SQV
 
-        vortices_plus = [vortex for vortex in self.vortices_unid if vortex.component == 'plus']
-        vortices_minus = [vortex for vortex in self.vortices_unid if vortex.component == 'minus']
+        vortices_1 = [vortex for vortex in self.vortices_unid if vortex.component == '1']
+        vortices_2 = [vortex for vortex in self.vortices_unid if vortex.component == '2']
 
-        for vortex_plus in vortices_plus:
-            for vortex_minus in vortices_minus:
+        for vortex_plus in vortices_1:
+            for vortex_minus in vortices_2:
                 if abs(vortex_plus.x - vortex_minus.x) < threshold:
                     if abs(vortex_plus.y - vortex_minus.y) < threshold:
                         print('SQV detected!')
