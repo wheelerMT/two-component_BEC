@@ -69,21 +69,22 @@ class VortexMap:
         vortices_1 = [vortex for vortex in self.vortices_unid if vortex.component == '1']
         vortices_2 = [vortex for vortex in self.vortices_unid if vortex.component == '2']
 
-        for vortex_plus in vortices_1:
-            for vortex_minus in vortices_2:
-                if abs(vortex_plus.x - vortex_minus.x) < threshold:
-                    if abs(vortex_plus.y - vortex_minus.y) < threshold:
-                        print('SQV detected!')
+        for vortex_1 in vortices_1:
+            for vortex_2 in vortices_2:
+                if abs(vortex_1.x - vortex_2.x) < threshold:
+                    if abs(vortex_1.y - vortex_2.y) < threshold:
                         # * If this evaluates to true, the two vortices are within the threshold
                         # * Firstly, get the average of the positions of the two overlapping vortices
-                        sqv_pos = (vortex_plus.x + vortex_minus.x) / 2, (vortex_plus.y + vortex_minus.y) / 2
+                        sqv_pos = (vortex_1.x + vortex_2.x) / 2, (vortex_1.y + vortex_2.y) / 2
 
                         # * Generate new SQV vortex that gets added to the SQV pool
-                        self.add_vortex(Vortex(sqv_pos, vortex_plus.winding, component='both', v_type='SQV'))
+                        self.add_vortex(Vortex(sqv_pos, vortex_1.winding, component='both', v_type='SQV'))
 
                         # * Remove the corresponding vortex_plus and vortex_minus from the unid pool
-                        self.vortices_unid.remove(vortex_plus)
-                        self.vortices_unid.remove(vortex_minus)
+                        if vortex_1 in self.vortices_unid:
+                            self.vortices_unid.remove(vortex_1)
+                        if vortex_2 in self.vortices_unid:
+                            self.vortices_unid.remove(vortex_2)
                         break
 
         # * Determines HQVs by setting all remaining unidentified vortices to HQVs

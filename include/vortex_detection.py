@@ -36,7 +36,7 @@ def detect(vortexMap, pos_x, pos_y, wfn, x_grid, y_grid, component):
                 vortexMap.add_vortex(vortex.Vortex(refine_positions([ii, jj], wfn, x_grid, y_grid), 1, component))
             counter += 1
 
-    print('Found {} vortices in {:.2f}s!'.format(counter, time.time() - t1))
+    print('Found {} vortices within component {} in {:.2f}s!'.format(counter, component, time.time() - t1))
 
 
 def refine_positions(position, wfn, x_grid, y_grid):
