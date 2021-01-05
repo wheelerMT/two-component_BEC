@@ -3,11 +3,8 @@ import cupy as cp
 import h5py
 from include.phaseImprinting import get_phase
 import include.symplecticMethod as sm
-import matplotlib.pyplot as plt
-
 
 """Generates an initial state with a random configuration of HQVs in each component and then evolves in time."""
-
 
 # --------------------------------------------------------------------------------------------------------------------
 # Controlled variables:
