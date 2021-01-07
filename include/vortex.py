@@ -58,9 +58,14 @@ class VortexMap:
         if vortex.v_type == 'HQV':
             self.vortices_hqv.append(vortex)
 
-    def num_of_vortices(self):
-        print('There are {} SQVs and {} HQVs in the system.'.format(len(self.vortices_sqv), len(self.vortices_hqv)))
+    def total_vortices(self):
         return len(self.vortices_sqv) + len(self.vortices_hqv)
+
+    def sqv_number(self):
+        return len(self.vortices_sqv)
+
+    def hqv_number(self):
+        return len(self.vortices_hqv)
 
     def identify_vortices(self, threshold):
         # * Finds SQVs by finding overlapping vortices in the components
