@@ -1,13 +1,18 @@
+import os.path
+import pickle as pickle
+import sys
+
 import h5py
 import numpy as np
+
 import include.vortex
 import include.vortex_detection as vd
-import pickle as pickle
 
-"""Calculates the number of vortices in each frame of data and saves the result to a new dataset."""
+"""Calculates the VortexMap for each frame of data and saves the result to a new pickled dataset."""
 
 # Import dataset:
-filename = 'HQV_imp_Nvort=200'
+filename = input('Enter filename of the main dataset: ')
+v_filepath = '../data/vortexData/{}_VD.pkl'.format(filename)    # Filename for vortex data
 data = h5py.File('../data/{}.hdf5'.format(filename), 'r')
 
 # Load in data:
@@ -20,10 +25,15 @@ psi_1 = data['wavefunction/psi_1']
 psi_2 = data['wavefunction/psi_2']
 
 # Calculate necessary variables:
-n0 = 1.6e9 / (Nx * Ny)  # Background density
-eps = 0.1   # Threshold percentage
+n0 = dx * dy * np.sum(abs(psi_1[:, :, 0]) ** 2 + abs(psi_2[:, : 0]) ** 2)
+eps = 0.4   # Threshold percentage
 
-maps = []
+# Check if vortex dataset already exists and exit if it does:
+try:
+    if os.path.isfile(v_filepath):
+        raise OSError
+except OSError:
+    exit('{}: Vortex data file already exists.'.format(sys.exc_info()[0]))
 
 # Start detection:
 for i in range(psi_1.shape[-1]):
@@ -38,33 +48,5 @@ for i in range(psi_1.shape[-1]):
 
     v_map.identify_vortices(threshold=2)
 
-    with open('../data/vortexData/{}_VD.pkl'.format(filename), 'wb+') as output:
-        pickle.dump(v_map, output, pickle.HIGHEST_PROTOCOL)
-
-
-r"""
-used_map = maps[2]
-
-# Plot the vortex overlay for this map
-fig, ax = plt.subplots(2, figsize=(8, 8))
-for axis in ax:
-    axis.set_xlim(x.min(), x.max())
-    axis.set_ylim(y.min(), y.max())
-
-ax[0].contourf(X, Y, abs(psi_1[:, :, 2]) ** 2, levels=25, cmap='gnuplot')
-ax[1].contourf(X, Y, abs(psi_2[:, :, 2]) ** 2, levels=25, cmap='gnuplot')
-
-for vortex in used_map.vortices_hqv:
-    if vortex.winding > 0:
-        if vortex.component == '1':
-            ax[0].plot(*zip(vortex.get_coords()), 'w^')
-        if vortex.component == '2':
-            ax[1].plot(*zip(vortex.get_coords()), 'ws')
-    if vortex.winding < 0:
-        if vortex.component == '1':
-            ax[0].plot(*zip(vortex.get_coords()), 'k^')
-        if vortex.component == '2':
-            ax[1].plot(*zip(vortex.get_coords()), 'ks')
-
-plt.show()
-"""
+    with open(v_filepath, 'ab') as output:
+        pickle.dump(v_map, output)
