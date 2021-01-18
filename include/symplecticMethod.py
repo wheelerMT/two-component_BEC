@@ -4,7 +4,7 @@ import cupy as cp
 
 
 def kinetic_evolution(wfn_k, time_step, wvn_x, wvn_y):
-    wfn_k *= cp.exp(-0.25 * 1j * time_step * (wvn_x ** 2 + wvn_y ** 2))
+    wfn_k *= cp.exp(-0.5 * 1j * time_step * (wvn_x ** 2 + wvn_y ** 2))
 
 
 def potential_evolution(wfn_1_old, wfn_2_old, time_step, intra_1, intra_2, inter_int, cp_1, cp_2):
