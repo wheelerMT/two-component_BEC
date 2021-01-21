@@ -63,89 +63,100 @@ Nframe = 20000   # Save data every Nframe number of timesteps
 dt = 1e-2  # Imaginary time timestep
 t = 0.
 save_index = 0   # Array index
+fresh_simulation = True     # Boolean that determines whether to continue from previous data or start fresh
+
+# Filename and path of dataset:
+filename = 'HQV_grid_gamma=075'  # Name of file to save data to
+data_path = '../scratch/data/twoComponent/{}.hdf5'.format(filename)
 
 # --------------------------------------------------------------------------------------------------------------------
 # Generate the initial state:
 # --------------------------------------------------------------------------------------------------------------------
-# Generate phase:
-N_vort = 48 ** 2    # Number of vortices in each component
-vort_pos_1 = iter(generate_positions(xi, x, y))
-vort_pos_2 = iter(generate_positions(xi, x, y))
-theta_1 = get_phase(N_vort, vort_pos_1, Nx, Ny, X, Y, len_x, len_y)
-theta_2 = get_phase(N_vort, vort_pos_2, Nx, Ny, X, Y, len_x, len_y)
+if fresh_simulation:
+    # Generate phase:
+    N_vort = 48 ** 2    # Number of vortices in each component
+    vort_pos_1 = iter(generate_positions(xi, x, y))
+    vort_pos_2 = iter(generate_positions(xi, x, y))
+    theta_1 = get_phase(N_vort, vort_pos_1, Nx, Ny, X, Y, len_x, len_y)
+    theta_2 = get_phase(N_vort, vort_pos_2, Nx, Ny, X, Y, len_x, len_y)
 
-# Generate initial wavefunctions:
-psi_1 = cp.sqrt(n0) * cp.exp(1j * theta_1)
-psi_2 = cp.sqrt(n0) * cp.exp(1j * theta_2)
-psi_1_k = cp.fft.fft2(psi_1)
-psi_2_k = cp.fft.fft2(psi_2)
-
-# Getting atom number for renormalisation in imaginary time evolution
-atom_num_1 = dx * dy * cp.sum(cp.abs(psi_1) ** 2)
-atom_num_2 = dx * dy * cp.sum(cp.abs(psi_2) ** 2)
-
-# Phase of initial state to allow fixing of phase during imaginary time evolution
-theta_fix_1 = cp.angle(psi_1)
-theta_fix_2 = cp.angle(psi_2)
-
-# ------------------------------------------------------------------------------------------------------------------
-# Imaginary time evolution
-# ------------------------------------------------------------------------------------------------------------------
-for i in range(2000):
-    # Kinetic step:
-    sm.kinetic_evolution(psi_1_k, -1j * dt, Kx, Ky)
-    sm.kinetic_evolution(psi_2_k, -1j * dt, Kx, Ky)
-
-    psi_1 = cp.fft.ifft2(psi_1_k)
-    psi_2 = cp.fft.ifft2(psi_2_k)
-
-    # Potential step:
-    psi_1, psi_2 = sm.potential_evolution(psi_1, psi_2, -1j * dt, g1, g2, g12)
-
+    # Generate initial wavefunctions:
+    psi_1 = cp.sqrt(n0) * cp.exp(1j * theta_1)
+    psi_2 = cp.sqrt(n0) * cp.exp(1j * theta_2)
     psi_1_k = cp.fft.fft2(psi_1)
     psi_2_k = cp.fft.fft2(psi_2)
 
-    # Kinetic step:
-    sm.kinetic_evolution(psi_1_k, -1j * dt, Kx, Ky)
-    sm.kinetic_evolution(psi_2_k, -1j * dt, Kx, Ky)
+    # Getting atom number for renormalisation in imaginary time evolution
+    atom_num_1 = dx * dy * cp.sum(cp.abs(psi_1) ** 2)
+    atom_num_2 = dx * dy * cp.sum(cp.abs(psi_2) ** 2)
 
-    # Re-normalising:
-    atom_num_new_1 = dx * dy * cp.sum(cp.abs(cp.fft.ifft2(psi_1_k)) ** 2)
-    atom_num_new_2 = dx * dy * cp.sum(cp.abs(cp.fft.ifft2(psi_2_k)) ** 2)
-    psi_1_k = cp.fft.fft2(cp.sqrt(atom_num_1) * cp.fft.ifft2(psi_1_k) / cp.sqrt(atom_num_new_1))
-    psi_2_k = cp.fft.fft2(cp.sqrt(atom_num_2) * cp.fft.ifft2(psi_2_k) / cp.sqrt(atom_num_new_2))
+    # Phase of initial state to allow fixing of phase during imaginary time evolution
+    theta_fix_1 = cp.angle(psi_1)
+    theta_fix_2 = cp.angle(psi_2)
 
-    # Fixing phase:
-    psi_1 = cp.fft.ifft2(psi_1_k)
-    psi_2 = cp.fft.ifft2(psi_2_k)
-    psi_1 *= cp.exp(1j * theta_fix_1) / cp.exp(1j * cp.angle(psi_1))
-    psi_2 *= cp.exp(1j * theta_fix_2) / cp.exp(1j * cp.angle(psi_2))
-    psi_1_k = cp.fft.fft2(psi_1)
-    psi_2_k = cp.fft.fft2(psi_2)
+    # ------------------------------------------------------------------------------------------------------------------
+    # Imaginary time evolution
+    # ------------------------------------------------------------------------------------------------------------------
+    for i in range(2000):
+        # Kinetic step:
+        sm.kinetic_evolution(psi_1_k, -1j * dt, Kx, Ky)
+        sm.kinetic_evolution(psi_2_k, -1j * dt, Kx, Ky)
 
-# ------------------------------------------------------------------------------------------------------------------
-# Creating save file and saving initial data
-# ------------------------------------------------------------------------------------------------------------------
-filename = 'HQV_grid_gamma=075'    # Name of file to save data to
-data_path = '../scratch/data/twoComponent{}.hdf5'.format(filename)
+        psi_1 = cp.fft.ifft2(psi_1_k)
+        psi_2 = cp.fft.ifft2(psi_2_k)
 
-with h5py.File(data_path, 'w') as data:
-    # Saving spatial data:
-    data.create_dataset('grid/x', x.shape, data=cp.asnumpy(x))
-    data.create_dataset('grid/y', y.shape, data=cp.asnumpy(y))
+        # Potential step:
+        psi_1, psi_2 = sm.potential_evolution(psi_1, psi_2, -1j * dt, g1, g2, g12)
 
-    # Saving time variables:
-    data.create_dataset('time/Nt', data=Nt)
-    data.create_dataset('time/dt', data=dt)
-    data.create_dataset('time/Nframe', data=Nframe)
+        psi_1_k = cp.fft.fft2(psi_1)
+        psi_2_k = cp.fft.fft2(psi_2)
 
-    # Creating empty wavefunction datasets to store data:
-    data.create_dataset('wavefunction/psi_1', (Nx, Ny, 1), maxshape=(Nx, Ny, None), dtype='complex64')
-    data.create_dataset('wavefunction/psi_2', (Nx, Ny, 1), maxshape=(Nx, Ny, None), dtype='complex64')
+        # Kinetic step:
+        sm.kinetic_evolution(psi_1_k, -1j * dt, Kx, Ky)
+        sm.kinetic_evolution(psi_2_k, -1j * dt, Kx, Ky)
 
-    # Stores initial state:
-    data.create_dataset('initial_state/psi_1', data=cp.asnumpy(cp.fft.ifft2(psi_1_k)))
-    data.create_dataset('initial_state/psi_2', data=cp.asnumpy(cp.fft.ifft2(psi_2_k)))
+        # Re-normalising:
+        atom_num_new_1 = dx * dy * cp.sum(cp.abs(cp.fft.ifft2(psi_1_k)) ** 2)
+        atom_num_new_2 = dx * dy * cp.sum(cp.abs(cp.fft.ifft2(psi_2_k)) ** 2)
+        psi_1_k = cp.fft.fft2(cp.sqrt(atom_num_1) * cp.fft.ifft2(psi_1_k) / cp.sqrt(atom_num_new_1))
+        psi_2_k = cp.fft.fft2(cp.sqrt(atom_num_2) * cp.fft.ifft2(psi_2_k) / cp.sqrt(atom_num_new_2))
+
+        # Fixing phase:
+        psi_1 = cp.fft.ifft2(psi_1_k)
+        psi_2 = cp.fft.ifft2(psi_2_k)
+        psi_1 *= cp.exp(1j * theta_fix_1) / cp.exp(1j * cp.angle(psi_1))
+        psi_2 *= cp.exp(1j * theta_fix_2) / cp.exp(1j * cp.angle(psi_2))
+        psi_1_k = cp.fft.fft2(psi_1)
+        psi_2_k = cp.fft.fft2(psi_2)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Creating save file and saving initial data
+    # ------------------------------------------------------------------------------------------------------------------
+    with h5py.File(data_path, 'w') as data:
+        # Saving spatial data:
+        data.create_dataset('grid/x', x.shape, data=cp.asnumpy(x))
+        data.create_dataset('grid/y', y.shape, data=cp.asnumpy(y))
+
+        # Saving time variables:
+        data.create_dataset('time/Nt', data=Nt)
+        data.create_dataset('time/dt', data=dt)
+        data.create_dataset('time/Nframe', data=Nframe)
+
+        # Creating empty wavefunction datasets to store data:
+        data.create_dataset('wavefunction/psi_1', (Nx, Ny, 1), maxshape=(Nx, Ny, None), dtype='complex64')
+        data.create_dataset('wavefunction/psi_2', (Nx, Ny, 1), maxshape=(Nx, Ny, None), dtype='complex64')
+
+        # Stores initial state:
+        data.create_dataset('initial_state/psi_1', data=cp.asnumpy(cp.fft.ifft2(psi_1_k)))
+        data.create_dataset('initial_state/psi_2', data=cp.asnumpy(cp.fft.ifft2(psi_2_k)))
+else:
+    # Load in wavefunction from old data:
+    backup_data = h5py.File(data_path, 'r')
+    psi_1_k = cp.fft.fft2(cp.asarray(backup_data['wavefunction/psi_1'][:, :, -1]))
+    psi_2_k = cp.fft.fft2(cp.asarray(backup_data['wavefunction/psi_2'][:, :, -1]))
+    save_index = backup_data['wavefunction/psi_1'].shape[-1]
+    backup_data.close()
+
 # ------------------------------------------------------------------------------------------------------------------
 # Real time evolution
 # ------------------------------------------------------------------------------------------------------------------
@@ -183,3 +194,6 @@ for i in range(Nt):
         print('t = %1.4f' % t)
 
     t += dt
+
+    if save_index == Nt // Nframe:
+        exit('Maximum frames reached, exiting code...')
