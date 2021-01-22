@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
+plt.rcParams.update({'font.size': 16})
 
 """ File that loads in data from a vortex data pkl file and plots the corresponding vortex number."""
 
@@ -39,6 +40,8 @@ while True:
 print('Pickle length = {}'.format(pickle_length))
 
 time_array = np.arange(100 * pickle_length, step=100)   # Time
+psi_1_vortex = np.array(psi_1_vortex)
+psi_2_vortex = np.array(psi_2_vortex)
 
 # Set up plots:
 fig, ax = plt.subplots(1, 2, figsize=(20, 15))
@@ -49,16 +52,18 @@ ax[1].set_xlabel(r'$t/\tau$')
 
 ax[0].loglog(time_array[:], psi_1_vortex[:], 'rD', markersize=2, label=r'$\psi_1$')
 ax[0].loglog(time_array[:], psi_2_vortex[:], 'bD', markersize=2, label=r'$\psi_2$')
-ax[0].loglog(time_array[300:], 0.1e5 * (time_array[300:] ** (-1./2)), 'k-', label=r'$t^{-\frac{1}{2}}$')
-ax[0].loglog(time_array[20:250], 0.1e7 * (time_array[20:250] ** (-1.)), 'k--', label=r'$t^{-1}$')
+ax[0].loglog(time_array[:], psi_1_vortex[:] + psi_2_vortex[:], 'kD', markersize=2, label=r'Total')
+ax[0].loglog(time_array[100:], 0.25e5 * (time_array[100:] ** (-1./2)), 'k-', label=r'$t^{-\frac{1}{2}}$')
+ax[0].loglog(time_array[10:100], 0.3e7 * (time_array[10:100] ** (-1.)), 'k--', label=r'$t^{-1}$')
 ax[0].loglog(time_array[1:10], 1.6e4 * (time_array[1:10] ** (-2./5)), 'k:', label=r'$t^{-\frac{2}{5}}$')
 ax[0].legend(fontsize=16)
 
-ax[1].loglog(time_array[:], 1/np.sqrt(np.array(psi_1_vortex[:])), 'rD', markersize=2, label=r'$\psi_1$')
-ax[1].loglog(time_array[:], 1/np.sqrt(np.array(psi_2_vortex[:])), 'bD', markersize=2, label=r'$\psi_2$')
-ax[1].loglog(time_array[300:], 0.9e-2 * (time_array[300:] ** (1./4)), 'k-', label=r'$t^{\frac{1}{4}}$')
-ax[1].loglog(time_array[10:100], 0.9e-3 * (time_array[10:100] ** (1./2)), 'k--', label=r'$t^{\frac{1}{2}}$')
-ax[1].loglog(time_array[1:10], 0.8e-2 * (time_array[1:10] ** (1./5)), 'k:', label=r'$t^{\frac{1}{5}}$')
+ax[1].loglog(time_array[:], 1/np.sqrt(psi_1_vortex[:]), 'rD', markersize=2, label=r'$\psi_1$')
+ax[1].loglog(time_array[:], 1/np.sqrt(psi_2_vortex[:]), 'bD', markersize=2, label=r'$\psi_2$')
+ax[1].loglog(time_array[:], 1/np.sqrt(psi_1_vortex[:] + psi_2_vortex[:]), 'kD', markersize=2, label=r'Total')
+ax[1].loglog(time_array[100:], 0.6e-2 * (time_array[100:] ** (1./4)), 'k-', label=r'$t^{\frac{1}{4}}$')
+ax[1].loglog(time_array[10:100], 0.8e-3 * (time_array[10:100] ** (1./2)), 'k--', label=r'$t^{\frac{1}{2}}$')
+ax[1].loglog(time_array[1:10], 0.7e-2 * (time_array[1:10] ** (1./5)), 'k:', label=r'$t^{\frac{1}{5}}$')
 ax[1].legend(fontsize=16)
 
 # ax[2].loglog(time_array[:], abs(np.array(psi_1_vortex[:]) - np.array(psi_2_vortex)), 'rD', label=r'$\psi_1$')
