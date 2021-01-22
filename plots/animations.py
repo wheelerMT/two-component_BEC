@@ -24,14 +24,14 @@ num_of_frames = psi_1.shape[-1]
 # ------------------------------------------------------------------------------------------------------------------
 # Set up initial figure
 # ------------------------------------------------------------------------------------------------------------------
-fig, ax = plt.subplots(1, 2, sharey=True, figsize=(10, 10))
+fig, ax = plt.subplots(1, 2, sharey=True)
 ax[0].set_ylabel(r'$y / \xi$')
 ax[0].set_title(r'$|\psi_1|^2$')
 ax[1].set_title(r'$|\psi_2|^2$')
 for axis in ax:
     axis.set_xlabel(r'$x / \xi$')
 
-cvals_dens = np.linspace(0, 1, 25, endpoint=True)
+cvals_dens = np.linspace(0, 3500, 25, endpoint=True)
 
 # Initial frame plot:
 densPlus_plot = ax[0].contourf(X, Y, abs(psi_1[:, :, 0]) ** 2, cvals_dens, cmap='gnuplot')
