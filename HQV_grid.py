@@ -9,7 +9,6 @@ import include.symplecticMethod as sm
 
 
 def generate_positions(healing_len, grid_x, grid_y):
-    r"""Each vortex along x separated by 20 pts. Each vortex separated along y by 20 pts."""
     v_count = 0
     positions = []
     for y_index in np.linspace(0 + 20.9 / 6, 1003.1 + 20.9 / 6, num=48):
@@ -58,7 +57,7 @@ g12 = g1 * gamma
 xi = 1 / np.sqrt(n0 * g1)   # Healing length
 
 # Time steps, number and wavefunction save variables
-Nt = 35000000
+Nt = 20000000
 Nframe = 20000   # Save data every Nframe number of timesteps
 dt = 1e-2  # Imaginary time timestep
 t = 0.
@@ -75,8 +74,9 @@ data_path = '../scratch/data/twoComponent/{}.hdf5'.format(filename)
 if fresh_simulation:
     # Generate phase:
     N_vort = 48 ** 2    # Number of vortices in each component
-    vort_pos_1 = iter(generate_positions(xi, x, y))
-    vort_pos_2 = iter(generate_positions(xi, x, y))
+    position_file = h5py.File('./vortexGrid_pos.hdf5', 'r')
+    vort_pos_1 = iter(position_file['positions/pos_1'])
+    vort_pos_2 = iter(position_file['positions/pos_2'])
     theta_1 = get_phase(N_vort, vort_pos_1, Nx, Ny, X, Y, len_x, len_y)
     theta_2 = get_phase(N_vort, vort_pos_2, Nx, Ny, X, Y, len_x, len_y)
 
