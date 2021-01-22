@@ -61,11 +61,13 @@ class VortexMap:
     def total_vortices(self):
         return len(self.vortices_sqv) + len(self.vortices_hqv)
 
-    def sqv_number(self):
-        return len(self.vortices_sqv)
+    def sqv_number(self, component):
+        sqv_list = [vortex for vortex in self.vortices_sqv if vortex.component == component]
+        return len(sqv_list)
 
-    def hqv_number(self):
-        return len(self.vortices_hqv)
+    def hqv_number(self, component):
+        hqv_list = [vortex for vortex in self.vortices_hqv if vortex.component == component]
+        return len(hqv_list)
 
     def identify_vortices(self, threshold):
         # * Finds SQVs by finding overlapping vortices in the components
