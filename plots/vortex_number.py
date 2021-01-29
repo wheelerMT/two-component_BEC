@@ -18,7 +18,7 @@ def load_data(Filename):
 
 
 # Load in vortex map pickled data:
-filename = input('Enter filename: ')
+filename = 'HQV_grid_gamma=01'  # input('Enter filename: ')
 maps = load_data('../data/vortexData/{}_VD.pkl'.format(filename))
 pickle_length = 0   # Counts number of elements in pickle file
 
@@ -39,7 +39,7 @@ while True:
         break
 print('Pickle length = {}'.format(pickle_length))
 
-time_array = np.arange(100 * pickle_length, step=100)   # Time
+time_array = np.arange(200 * pickle_length, step=200)   # Time
 psi_1_vortex = np.array(psi_1_vortex)
 psi_2_vortex = np.array(psi_2_vortex)
 
@@ -53,17 +53,17 @@ ax[1].set_xlabel(r'$t/\tau$')
 ax[0].loglog(time_array[:], psi_1_vortex[:], 'rD', markersize=2, label=r'$\psi_1$')
 ax[0].loglog(time_array[:], psi_2_vortex[:], 'bD', markersize=2, label=r'$\psi_2$')
 ax[0].loglog(time_array[:], psi_1_vortex[:] + psi_2_vortex[:], 'kD', markersize=2, label=r'Total')
-ax[0].loglog(time_array[100:], 0.25e5 * (time_array[100:] ** (-1./2)), 'k-', label=r'$t^{-\frac{1}{2}}$')
-ax[0].loglog(time_array[10:100], 0.3e7 * (time_array[10:100] ** (-1.)), 'k--', label=r'$t^{-1}$')
-ax[0].loglog(time_array[1:10], 1.6e4 * (time_array[1:10] ** (-2./5)), 'k:', label=r'$t^{-\frac{2}{5}}$')
+ax[0].loglog(time_array[50:], 2e4 * (time_array[50:] ** (-1./2)), 'k-', label=r'$t^{-\frac{1}{2}}$')
+ax[0].loglog(time_array[3:20], 7e5 * (time_array[3:20] ** (-1.)), 'k--', label=r'$t^{-1}$')
+ax[0].loglog(time_array[300:], 5e3 * (time_array[300:] ** (-2./5)), 'k:', label=r'$t^{-\frac{2}{5}}$')
 ax[0].legend(fontsize=16)
 
 ax[1].loglog(time_array[:], 1/np.sqrt(psi_1_vortex[:]), 'rD', markersize=2, label=r'$\psi_1$')
 ax[1].loglog(time_array[:], 1/np.sqrt(psi_2_vortex[:]), 'bD', markersize=2, label=r'$\psi_2$')
 ax[1].loglog(time_array[:], 1/np.sqrt(psi_1_vortex[:] + psi_2_vortex[:]), 'kD', markersize=2, label=r'Total')
-ax[1].loglog(time_array[100:], 0.6e-2 * (time_array[100:] ** (1./4)), 'k-', label=r'$t^{\frac{1}{4}}$')
-ax[1].loglog(time_array[10:100], 0.8e-3 * (time_array[10:100] ** (1./2)), 'k--', label=r'$t^{\frac{1}{2}}$')
-ax[1].loglog(time_array[1:10], 0.7e-2 * (time_array[1:10] ** (1./5)), 'k:', label=r'$t^{\frac{1}{5}}$')
+ax[1].loglog(time_array[50:], 0.7e-2 * (time_array[50:] ** (1./4)), 'k-', label=r'$t^{\frac{1}{4}}$')
+ax[1].loglog(time_array[3:20], 1e-3 * (time_array[3:20] ** (1./2)), 'k--', label=r'$t^{\frac{1}{2}}$')
+ax[1].loglog(time_array[300:], 1.5e-2 * (time_array[300:] ** (1./5)), 'k:', label=r'$t^{\frac{1}{5}}$')
 ax[1].legend(fontsize=16)
 
 # ax[2].loglog(time_array[:], abs(np.array(psi_1_vortex[:]) - np.array(psi_2_vortex)), 'rD', label=r'$\psi_1$')
