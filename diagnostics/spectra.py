@@ -17,7 +17,7 @@ def spectral_derivative(array, wvn_x, wvn_y, f_fft2, f_ifft2):
 # ------------------------------------------------------------------------------------------------------------------
 # Loading required data
 # ------------------------------------------------------------------------------------------------------------------
-filename = 'frames/100kf_HQV_grid_gamma=06'    # input('Enter name of data file: ')
+filename = input('Enter name of data file: ')
 data_file = h5py.File('../data/{}.hdf5'.format(filename), 'r')
 
 # Grid data:
@@ -95,19 +95,19 @@ B = Kx * Ky / K ** 2
 C_1 = Kx ** 2 / K ** 2
 C_2 = Ky ** 2 / K ** 2
 
-# Incompressible:
-ui_x_1 = A_1 * u_x_1 - B * u_y_1
-ui_y_1 = -B * u_x_1 + A_2 * u_y_1
-
-ui_x_2 = A_1 * u_x_2 - B * u_y_2
-ui_y_2 = -B * u_x_2 + A_2 * u_y_2
-
 # Compressible:
 uc_x_1 = C_1 * u_x_1 + B * u_y_1
 uc_y_1 = B * u_x_1 + C_2 * u_y_1
 
 uc_x_2 = C_1 * u_x_2 + B * u_y_2
 uc_y_2 = B * u_x_2 + C_2 * u_y_2
+
+# Incompressible:
+ui_x_1 = u_x_1 - uc_x_1
+ui_y_1 = u_y_1 - uc_y_1
+
+ui_x_2 = u_x_2 - uc_x_2
+ui_y_2 = u_y_2 - uc_y_2
 
 # ------------------------------------------------------------------------------------------------------------------
 # Calculate energies
