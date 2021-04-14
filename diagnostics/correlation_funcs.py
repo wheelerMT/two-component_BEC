@@ -30,7 +30,8 @@ frame_start = 0
 integral_phase = np.empty((Nx, Ny, num_of_frames - frame_start))
 for i in range(frame_start, num_of_frames):
     alpha_perp = np.fft.fft2(-2 * psi_1[:, :, i] * psi_2[:, :, i])
-    integral_phase[:, :, i - frame_start] = np.fft.fftshift(1 / (n_0 * Nx) ** 2 * np.fft.ifft2(alpha_perp * np.conj(alpha_perp))).real
+    integral_phase[:, :, i - frame_start] = \
+        np.fft.fftshift(1 / (n_0 * Nx) ** 2 * np.fft.ifft2(alpha_perp * np.conj(alpha_perp))).real
     integral_phase[:, :, i] = np.where(integral_phase[:, :, i] < 0, 0, integral_phase[:, :, i])
 
 # Calculate nematic OP:
@@ -38,7 +39,8 @@ integral_nematic = np.empty((Nx, Ny, num_of_frames))
 for i in range(frame_start, num_of_frames):
     q_xx_k = np.fft.fft2(np.real(np.conj(psi_1[:, :, i]) * psi_2[:, :, i]))
     q_xy_k = np.fft.fft2(np.imag(np.conj(psi_1[:, :, i]) * psi_2[:, :, i]))
-    integral_nematic[:, :, i - frame_start] = np.fft.fftshift(4 / (n_0 * Nx) ** 2 * np.fft.ifft2(q_xx_k * np.conj(q_xx_k) + q_xy_k * np.conj(q_xy_k))).real
+    integral_nematic[:, :, i - frame_start] = \
+        np.fft.fftshift(4 / (n_0 * Nx) ** 2 * np.fft.ifft2(q_xx_k * np.conj(q_xx_k) + q_xy_k * np.conj(q_xy_k))).real
     integral_nematic[:, :, i] = np.where(integral_nematic[:, :, i] < 0, 0, integral_nematic[:, :, i])
 
 data_file.close()
