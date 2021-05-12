@@ -1,6 +1,5 @@
 import h5py
 import numpy as np
-from numpy import conj
 from tabulate import tabulate
 from numpy.fft import fftshift, ifftshift
 import matplotlib.pyplot as plt
@@ -10,7 +9,7 @@ matplotlib.use('TkAgg')
 plt.rcParams.update({'font.size': 13})
 
 
-def spectral_derivative(array, wvn_x, wvn_y, f_fft2, f_ifft2):
+def spectral_derivative(array, wvn_x, wvn_y):
     return np.fft.ifft2(ifftshift(1j * wvn_x * fftshift(np.fft.fft2(array)))), \
            np.fft.ifft2(ifftshift(1j * wvn_y * fftshift(np.fft.fft2(array))))
 
@@ -68,11 +67,11 @@ occ_2 = fftshift(fft2(psi_2) * np.conj(fft2(psi_2))).real / (Nx * Ny)
 # ------------------------------------
 # Quantum pressure, w_q
 # ------------------------------------
-grad_sqrtn_x_1, grad_sqrtn_y_1 = spectral_derivative(np.sqrt(n_1), Kx, Ky, fft2, ifft2)
+grad_sqrtn_x_1, grad_sqrtn_y_1 = spectral_derivative(np.sqrt(n_1), Kx, Ky)
 wq_x_1 = fftshift(fft2(grad_sqrtn_x_1)) / np.sqrt(Nx * Ny)
 wq_y_1 = fftshift(fft2(grad_sqrtn_y_1)) / np.sqrt(Nx * Ny)
 
-grad_sqrtn_x_2, grad_sqrtn_y_2 = spectral_derivative(np.sqrt(n_2), Kx, Ky, fft2, ifft2)
+grad_sqrtn_x_2, grad_sqrtn_y_2 = spectral_derivative(np.sqrt(n_2), Kx, Ky)
 wq_x_2 = fftshift(fft2(grad_sqrtn_x_2)) / np.sqrt(Nx * Ny)
 wq_y_2 = fftshift(fft2(grad_sqrtn_y_2)) / np.sqrt(Nx * Ny)
 
@@ -80,11 +79,11 @@ wq_y_2 = fftshift(fft2(grad_sqrtn_y_2)) / np.sqrt(Nx * Ny)
 # Weighted velocity, w_i & w_c:
 # ------------------------------------
 # Calculate mass velocity:
-dpsi_1_x, dpsi_1_y = spectral_derivative(psi_1, Kx, Ky, fft2, ifft2)
+dpsi_1_x, dpsi_1_y = spectral_derivative(psi_1, Kx, Ky)
 v_x_1 = (np.conj(psi_1) * dpsi_1_x - np.conj(dpsi_1_x) * psi_1) / (2 * 1j * n_1)
 v_y_1 = (np.conj(psi_1) * dpsi_1_y - np.conj(dpsi_1_y) * psi_1) / (2 * 1j * n_1)
 
-dpsi_2_x, dpsi_2_y = spectral_derivative(psi_2, Kx, Ky, fft2, ifft2)
+dpsi_2_x, dpsi_2_y = spectral_derivative(psi_2, Kx, Ky)
 v_x_2 = (np.conj(psi_2) * dpsi_2_x - np.conj(dpsi_2_x) * psi_2) / (2 * 1j * n_2)
 v_y_2 = (np.conj(psi_2) * dpsi_2_y - np.conj(dpsi_2_y) * psi_2) / (2 * 1j * n_2)
 
@@ -116,69 +115,6 @@ ui_y_1 = u_y_1 - uc_y_1
 ui_x_2 = u_x_2 - uc_x_2
 ui_y_2 = u_y_2 - uc_y_2
 
-# -------------------------------------
-# Spin, w_s
-# -------------------------------------
-rho = n_1 + n_2
-# Spin vectors:
-fz = 1 / rho * (n_1 - n_2)
-
-# Gradient of spin vectors
-ws_x, ws_y = spectral_derivative(fz, Kx, Ky, fft2, ifft2)
-
-# Calculate generalied spin velocity:
-ws_x = fftshift(fft2(np.sqrt(rho) / 2 * ws_x)) / np.sqrt(Nx * Ny)
-ws_y = fftshift(fft2(np.sqrt(rho) / 2 * ws_y)) / np.sqrt(Nx * Ny)
-
-# -------------------------------------
-# Nematic, w_n
-# -------------------------------------
-# Calculate elements of nematic tensor:
-n_xx = 1 / (2 * rho) * (n_1 + n_2 + conj(psi_1) * psi_2 + conj(psi_2) * psi_1)
-n_xy = 1j / (2 * rho) * (-n_1 + n_2)
-n_xz = np.zeros((Nx, Ny))
-
-n_yy = 1 / (2 * rho) * (conj(psi_2) * (psi_1 + psi_2) + conj(psi_1) * (-psi_1 + psi_2))
-n_yz = np.zeros((Nx, Ny))
-
-n_zz = 1 / (2 * rho) * (conj(psi_1) * psi_2 + conj(psi_2) * psi_1)
-
-# Derivative of nematic tensor:
-w_xx_x, w_xx_y = spectral_derivative(n_xx, Kx, Ky, fft2, ifft2)
-w_xy_x, w_xy_y = spectral_derivative(n_xy, Kx, Ky, fft2, ifft2)
-w_xz_x, w_xz_y = spectral_derivative(n_xz, Kx, Ky, fft2, ifft2)
-
-w_yy_x, w_yy_y = spectral_derivative(n_yy, Kx, Ky, fft2, ifft2)
-w_yz_x, w_yz_y = spectral_derivative(n_yz, Kx, Ky, fft2, ifft2)
-
-w_zz_x, w_zz_y = spectral_derivative(n_zz, Kx, Ky, fft2, ifft2)
-
-# Calculate nematic velocity:
-w_xx_x, w_xx_y = fftshift(fft2(np.sqrt(2 * rho) / 2 * w_xx_x)), fftshift(fft2(np.sqrt(2 * rho) / 2 * w_xx_y))
-w_xy_x, w_xy_y = fftshift(fft2(np.sqrt(2 * rho) / 2 * w_xy_x)), fftshift(fft2(np.sqrt(2 * rho) / 2 * w_xy_y))
-w_xz_x, w_xz_y = fftshift(fft2(np.sqrt(2 * rho) / 2 * w_xz_x)), fftshift(fft2(np.sqrt(2 * rho) / 2 * w_xz_y))
-
-w_yy_x, w_yy_y = fftshift(fft2(np.sqrt(2 * rho) / 2 * w_yy_x)), fftshift(fft2(np.sqrt(2 * rho) / 2 * w_yy_y))
-w_yz_x, w_yz_y = fftshift(fft2(np.sqrt(2 * rho) / 2 * w_yz_x)), fftshift(fft2(np.sqrt(2 * rho) / 2 * w_yz_y))
-
-w_zz_x, w_zz_y = fftshift(fft2(np.sqrt(2 * rho) / 2 * w_zz_x)), fftshift(fft2(np.sqrt(2 * rho) / 2 * w_zz_y))
-
-# Noramlise after FFT:
-w_xx_x /= np.sqrt(Nx * Ny)
-w_xx_y /= np.sqrt(Nx * Ny)
-w_xy_x /= np.sqrt(Nx * Ny)
-w_xy_y /= np.sqrt(Nx * Ny)
-w_xz_x /= np.sqrt(Nx * Ny)
-w_xz_y /= np.sqrt(Nx * Ny)
-
-w_yy_x /= np.sqrt(Nx * Ny)
-w_yy_y /= np.sqrt(Nx * Ny)
-w_yz_x /= np.sqrt(Nx * Ny)
-w_yz_y /= np.sqrt(Nx * Ny)
-
-w_zz_x /= np.sqrt(Nx * Ny)
-w_zz_y /= np.sqrt(Nx * Ny)
-
 # ------------------------------------------------------------------------------------------------------------------
 # Calculate energies
 # ------------------------------------------------------------------------------------------------------------------
@@ -193,13 +129,6 @@ E_vi_2 = 0.5 * (abs(ui_x_2) ** 2 + abs(ui_y_2) ** 2)
 # Compressible:
 E_vc_1 = 0.5 * (abs(uc_x_1) ** 2 + abs(uc_y_1) ** 2)
 E_vc_2 = 0.5 * (abs(uc_x_2) ** 2 + abs(uc_y_2) ** 2)
-
-# Spin:
-E_s = 0.5 * (abs(ws_x) ** 2 + abs(ws_y) ** 2)
-
-# Nematic:
-E_n = 0.5 * (abs(w_xx_x) ** 2 + abs(w_xx_y) ** 2 + abs(w_yy_x) ** 2 + abs(w_yy_y) ** 2 + abs(w_zz_x) ** 2 + abs(w_zz_y) ** 2 +
-             2 * (abs(w_xy_x) ** 2 + abs(w_xy_y) ** 2 + abs(w_xz_x) ** 2 + abs(w_xz_y) ** 2 + abs(w_yz_x) ** 2 + abs(w_yz_y) ** 2))
 
 # ------------------------------------------------------------------------------------------------------------------
 # Calculating energy spectrum
@@ -220,8 +149,6 @@ e_vi_1 = np.zeros((box_radius,)) + eps
 e_vi_2 = np.zeros((box_radius,)) + eps
 e_vc_1 = np.zeros((box_radius,)) + eps
 e_vc_2 = np.zeros((box_radius,)) + eps
-e_s = np.zeros((box_radius,)) + eps
-e_n = np.zeros((box_radius,)) + eps
 
 nc = np.zeros((box_radius,))  # Counts the number of times we sum over a given shell
 
@@ -242,10 +169,6 @@ for kx in range(Nx):
         e_vc_1[k] += 2 * K[kx, ky] ** (-2) * E_vc_1[kx, ky]
         e_vc_2[k] += 2 * K[kx, ky] ** (-2) * E_vc_2[kx, ky]
 
-        e_s[k] += 2 * K[kx, ky] ** (-2) * E_s[kx, ky]
-
-        e_n[k] += 2 * K[kx, ky] ** (-2) * E_n[kx, ky]
-
 e_occ_1[:] /= (nc[:] * dkx)
 e_occ_2[:] /= (nc[:] * dkx)
 e_q_1[:] /= (nc[:] * dkx)
@@ -254,10 +177,8 @@ e_vi_1[:] /= (nc[:] * dkx)
 e_vi_2[:] /= (nc[:] * dkx)
 e_vc_1[:] /= (nc[:] * dkx)
 e_vc_2[:] /= (nc[:] * dkx)
-e_s[:] /= (nc[:] * dkx)
-e_n[:] /= (nc[:] * dkx)
 
-sum_1 = e_q_1 + e_vi_1 + e_vc_1 + e_q_2 + e_vi_2 + e_vc_2 + e_s + e_n
+sum_1 = e_q_1 + e_vi_1 + e_vc_1 + e_q_2 + e_vi_2 + e_vc_2
 
 print('{:.10e}'.format(np.sum(2 * np.pi * e_occ_2[:Nx // 2] * wvn[:])))
 
@@ -268,13 +189,15 @@ ax.set_xlabel(r'$ka_s$')
 ax.set_ylabel(r'$n(k)$')
 # ax.set_ylim(bottom=1e3, top=4e9)
 
-ax.loglog(wvn, e_occ_1[:Nx // 2] + e_occ_2[:Nx // 2], color='k', marker='D', markersize=2, linestyle='None', label=r'$n(k)$')
-ax.loglog(wvn, e_q_1[:Nx // 2] + e_q_2[:Nx // 2], color='m', marker='D', markersize=2, linestyle='None', label=r'$n_q(k)$')
-ax.loglog(wvn, e_vi_1[:Nx // 2] + e_vi_2[:Nx // 2], color='r', marker='D', markersize=2, linestyle='None', label=r'$n_i(k)$')
-ax.loglog(wvn, e_vc_1[:Nx // 2] + e_vc_2[:Nx // 2], color='b', marker='D', markersize=2, linestyle='None', label=r'$n_c(k)$')
-ax.loglog(wvn, e_s[:Nx // 2], color='c', marker='D', markersize=2, linestyle='None', label=r'$n_s(k)$')
-ax.loglog(wvn, e_n[:Nx // 2], color='y', marker='D', markersize=2, linestyle='None', label=r'$n_n(k)$')
-ax.loglog(wvn, sum_1[:Nx // 2], color='g', marker='D', markersize=2, linestyle='None', label=r'$\Sigma n_\delta(k)$')
+ax.loglog(wvn, e_occ_1[:Nx // 2] + e_occ_2[:Nx // 2], color='k', marker='D', markersize=2, linestyle='None',
+          label=r'$n(k)$')
+ax.loglog(wvn, e_q_1[:Nx // 2] + e_q_2[:Nx // 2], color='m', marker='D', markersize=2, linestyle='None',
+          label=r'$n_q(k)$')
+ax.loglog(wvn, e_vi_1[:Nx // 2] + e_vi_2[:Nx // 2], color='r', marker='D', markersize=2, linestyle='None',
+          label=r'$n_i(k)$')
+ax.loglog(wvn, e_vc_1[:Nx // 2] + e_vc_2[:Nx // 2], color='b', marker='D', markersize=2, linestyle='None',
+          label=r'$n_c(k)$')
+# ax.loglog(wvn, sum_1[:Nx // 2], color='g', marker='D', markersize=2, linestyle='None', label=r'$\Sigma n_\delta(k)$')
 
 # ax.loglog(wvn, e_s[:Nx // 2], color='y', marker='D', markersize=2, linestyle='None', label=r'$n_s(k)$')
 # ax.loglog(wvn, sum_1, color='g', marker='D', markersize=2, linestyle='None', label=r'$\Sigma n_\delta(k)$')
@@ -282,5 +205,5 @@ ax.loglog(wvn, sum_1[:Nx // 2], color='g', marker='D', markersize=2, linestyle='
 ax.loglog(wvn[100:], 4e4 * wvn[100:] ** (-2), 'k:', label=r'$k^{-2}$')
 ax.loglog(wvn[5:80], 4e3 * wvn[5:80] ** (-4), 'k--', label=r'$k^{-4}$')
 ax.legend()
-# plt.savefig('../../plots/twoComponent/paper/gamma06_spectra.eps', bbox_inches='tight')
+plt.savefig('../../plots/twoComponent/paper/gamma06_spectra.pdf', bbox_inches='tight')
 plt.show()
