@@ -192,11 +192,11 @@ ax.set_ylabel(r'$n(k)$')
 ax.loglog(wvn, e_occ_1[:Nx // 2] + e_occ_2[:Nx // 2], color='k', marker='D', markersize=2, linestyle='None',
           label=r'$n(k)$')
 ax.loglog(wvn, e_q_1[:Nx // 2] + e_q_2[:Nx // 2], color='m', marker='D', markersize=2, linestyle='None',
-          label=r'$n_q(k)$')
+          label=r'$n^q(k)$')
 ax.loglog(wvn, e_vi_1[:Nx // 2] + e_vi_2[:Nx // 2], color='r', marker='D', markersize=2, linestyle='None',
-          label=r'$n_i(k)$')
+          label=r'$n^i(k)$')
 ax.loglog(wvn, e_vc_1[:Nx // 2] + e_vc_2[:Nx // 2], color='b', marker='D', markersize=2, linestyle='None',
-          label=r'$n_c(k)$')
+          label=r'$n^c(k)$')
 # ax.loglog(wvn, sum_1[:Nx // 2], color='g', marker='D', markersize=2, linestyle='None', label=r'$\Sigma n_\delta(k)$')
 
 # ax.loglog(wvn, e_s[:Nx // 2], color='y', marker='D', markersize=2, linestyle='None', label=r'$n_s(k)$')
